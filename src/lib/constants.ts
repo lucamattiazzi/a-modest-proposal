@@ -1,4 +1,4 @@
-export const PEOPLE_PER_SIDE = 100
+export const PEOPLE_PER_SIDE = 50
 export const POPULATION_SIZE = PEOPLE_PER_SIDE * PEOPLE_PER_SIDE
 export const BASE_SICK_RATIO = 0.1
 export const BASE_SAMPLE_RATIO = 0.1
