@@ -1,13 +1,21 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { drawWorld } from '../lib/world'
-import { BASE_SICK_RATIO, BASE_SAMPLE_RATIO } from '../lib/constants'
+import { BASE_DIFFUSION_PERC, BASE_SAMPLE_PERC, BASE_ASYMPTOMATIC_PERC } from '../lib/constants'
+
+const { round, min } = Math
+
+function renderRatio(ratio: number) {
+  return `${round(ratio * 100)}%`
+}
 
 export function App() {
   const canvas = useRef<HTMLCanvasElement>()
-  const [diffusion, setDiffusion] = useState(BASE_SICK_RATIO)
-  const [sample, setSample] = useState(BASE_SAMPLE_RATIO)
+  const [diffusion, setDiffusion] = useState(BASE_DIFFUSION_PERC)
+  const [sample, setSample] = useState(BASE_SAMPLE_PERC)
+  const [asymptomatic, setAsymptomatic] = useState(BASE_ASYMPTOMATIC_PERC)
   const [policy, setPolicy] = useState(false)
-  const [apparent, setApparent] = useState(BASE_SICK_RATIO)
+
+  const [apparent, setApparent] = useState(BASE_DIFFUSION_PERC)
   const [found, setFound] = useState(0)
 
   function onChangeDiffusion(e: React.ChangeEvent<HTMLInputElement>) {
@@ -18,12 +26,22 @@ export function App() {
     setSample(Number(e.target.value))
   }
 
+  function onChangeAsymptomatic(e: React.ChangeEvent<HTMLInputElement>) {
+    setAsymptomatic(Number(e.target.value))
+  }
+
   function togglePolicy() {
     setPolicy(!policy)
   }
 
   function drawNewWorld() {
-    const [apparentRatio, sickFoundRatio] = drawWorld(canvas.current, diffusion, sample, policy)
+    const [apparentRatio, sickFoundRatio] = drawWorld(
+      canvas.current,
+      diffusion,
+      sample,
+      asymptomatic,
+      policy
+    )
     setApparent(apparentRatio)
     setFound(sickFoundRatio)
   }
@@ -32,7 +50,7 @@ export function App() {
     if (!canvas.current) return
     const parent = canvas.current.parentNode as HTMLDivElement
     const { width, height } = parent.getBoundingClientRect()
-    const side = Math.min(width, height)
+    const side = min(width, height)
     canvas.current.width = side
     canvas.current.height = side
     drawNewWorld()
@@ -50,7 +68,7 @@ export function App() {
       </div>
       <div className="w-30 h-100 flex flex-column items-center justify-center">
         <div className="pv3 w-80">
-          <div className="w-100 tc">Sick ratio ({diffusion.toFixed(2)})</div>
+          <div className="w-100 tc">Diffusion of COVID ({renderRatio(diffusion)})</div>
           <input
             type="range"
             className="w-100"
@@ -62,7 +80,7 @@ export function App() {
           />
         </div>
         <div className="pv3 w-80">
-          <div className="w-100 tc">Sample size ({sample.toFixed(2)})</div>
+          <div className="w-100 tc">Size of people sampled ({renderRatio(sample)})</div>
           <input
             type="range"
             className="w-100"
@@ -71,6 +89,20 @@ export function App() {
             step="0.01"
             value={sample}
             onChange={onChangeSample}
+          />
+        </div>
+        <div className="pv3 w-80">
+          <div className="w-100 tc">
+            Part of people that show no symptoms ({renderRatio(asymptomatic)})
+          </div>
+          <input
+            type="range"
+            className="w-100"
+            min="0"
+            max="1"
+            step="0.01"
+            value={asymptomatic}
+            onChange={onChangeAsymptomatic}
           />
         </div>
         <div className="pv3 w-80 tc">
@@ -83,10 +115,10 @@ export function App() {
           <button onClick={drawNewWorld}>DRAW</button>
         </div>
         <div className="w-100 tc pv4">
-          <div>APPARENT RATIO: {apparent.toFixed(2)}</div>
+          <div>APPARENT RATIO: {renderRatio(apparent)}</div>
         </div>
         <div className="w-100 tc pv4">
-          <div>RATIO OF SICK PEOPLE FOUND: {found.toFixed(2)}</div>
+          <div>RATIO OF SICK PEOPLE FOUND: {renderRatio(found)}</div>
         </div>
       </div>
     </div>

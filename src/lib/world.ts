@@ -1,7 +1,7 @@
 import { range, sampleSize } from 'lodash-es'
 import { POPULATION_SIZE, PEOPLE_PER_SIDE, SamplePolicy } from './constants'
 
-const { max, floor, abs, random, min } = Math
+const { floor, random } = Math
 
 const policies = {
   sick: applySickPolicy,
@@ -10,43 +10,50 @@ const policies = {
 } as const
 
 interface Person {
-  sickness: number
-  isSick: boolean
+  symptoms: number
+  hasCovid: boolean
+  hasSymptoms: boolean
   isSampled: boolean
   x: number
   y: number
 }
 
-function createPerson(x: number, y: number, diffusion: number): Person {
-  const sickness = random()
+function createPerson(x: number, y: number, diffusion: number, asymptomatic: number): Person {
+  const hasCovid = random() < diffusion
+  const symptoms = hasCovid ? random() : 0
+  const hasSymptoms = symptoms > asymptomatic
   return {
-    isSick: sickness < diffusion,
-    sickness,
+    hasSymptoms,
+    hasCovid,
+    symptoms,
     isSampled: false,
     x,
     y,
   }
 }
 
-function generatePopulation(size: number, side: number, diffusion: number): Person[] {
+function generatePopulation(size: number, diffusion: number, asymptomatic: number): Person[] {
   const spacePerPeople = 1 / (PEOPLE_PER_SIDE + 1)
-  return range(POPULATION_SIZE).map(i => {
+  return range(size).map(i => {
     const x = spacePerPeople / 2 + (i % PEOPLE_PER_SIDE) / PEOPLE_PER_SIDE
     const y = spacePerPeople / 2 + floor(i / PEOPLE_PER_SIDE) / PEOPLE_PER_SIDE
-    const person = createPerson(x, y, diffusion)
+    const person = createPerson(x, y, diffusion, asymptomatic)
     return person
   })
 }
 
 function applySickPolicy(population: Person[], size: number): Person[] {
   const sampledIds = new Set()
+  const visitedIds = new Set()
   const sampled = [] as Person[]
-  while (sampledIds.size < size) {
+  while (true) {
+    if (sampledIds.size === size) break
+    if (visitedIds.size === population.length) break
     const randomId = floor(random() * population.length)
     if (sampledIds.has(randomId)) continue
+    visitedIds.add(randomId)
     const person = population[randomId]
-    const isChosen = random() ** 4 > person.sickness
-    if (!isChosen) continue
+    if (!person.hasSymptoms) continue
     sampledIds.add(randomId)
     sampled.push(person)
   }
@@ -61,6 +68,13 @@ function applyClosePolicy(population: Person[], size: number): Person[] {
   return sampleSize(population, size)
 }
 
+function getPersonColor(person: Person): string {
+  if (!person.isSampled) return 'lightgray'
+  if (!person.hasCovid) return 'blue'
+  if (!person.hasSymptoms) return 'orange'
+  return 'darkred'
+}
+
 function samplePopulation(population: Person[], size: number, policy: SamplePolicy): number {
   const chosenPolicy = policies[policy]
   const sampled = chosenPolicy(population, size)
@@ -68,7 +82,7 @@ function samplePopulation(population: Person[], size: number, policy: SamplePoli
   let confirmedSick = 0
   for (const person of sampled) {
     person.isSampled = true
-    if (person.isSick) confirmedSick++
+    if (person.hasCovid) confirmedSick++
   }
   return confirmedSick
 }
@@ -76,7 +90,8 @@ function samplePopulation(population: Person[], size: number, policy: SamplePoli
 export function drawWorld(
   canvas: HTMLCanvasElement,
   diffusion: number,
-  sampleRatio: number,
+  sample: number,
+  asymptomatic: number,
   onlySick: boolean
 ): [number, number] {
   const ctx = canvas.getContext('2d')
@@ -84,21 +99,21 @@ export function drawWorld(
 
   ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-  const spacePerPeople = 1 / (PEOPLE_PER_SIDE + 1)
-  const population = generatePopulation(POPULATION_SIZE, side, diffusion)
-  const totalSick = population.filter(p => p.isSick).length
+  const population = generatePopulation(POPULATION_SIZE, diffusion, asymptomatic)
+  const totalSick = population.filter(p => p.hasCovid).length
   const policy = onlySick ? 'sick' : 'random'
 
-  const sample = floor(sampleRatio * population.length)
-  const confirmedSick = samplePopulation(population, sample, policy)
-  const apparentRatio = confirmedSick / sample
+  const sampleAbs = floor(sample * population.length)
+  const confirmedSick = samplePopulation(population, sampleAbs, policy)
+  const apparentRatio = confirmedSick / sampleAbs
   const sickFoundRatio = confirmedSick / totalSick
 
+  const spacePerPeople = 1 / (PEOPLE_PER_SIDE + 1)
   const personSize = side * spacePerPeople
   for (const person of population) {
     const x = person.x * side
     const y = person.y * side
-    const color = !person.isSampled ? 'rgb(200, 200, 200)' : person.isSick ? 'red' : 'blue'
+    const color = getPersonColor(person)
     ctx.beginPath()
     ctx.arc(x, y, Math.floor(personSize / 2), 0, 2 * Math.PI, false)
     ctx.fillStyle = color
