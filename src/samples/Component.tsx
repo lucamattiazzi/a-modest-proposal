@@ -52,7 +52,7 @@ export function Component() {
         <canvas className="bg-black-10" ref={canvas} />
       </div>
       <div className="w-30 h-100 flex flex-column items-center justify-center">
-        <div className="pv3 w-80">
+        <div className="pv2 w-80">
           <div className="w-100 tc">Diffusion of COVID ({renderRatio(diffusion)})</div>
           <input
             type="range"
@@ -64,7 +64,7 @@ export function Component() {
             onChange={onChangeWrapper(setDiffusion)}
           />
         </div>
-        <div className="pv3 w-80">
+        <div className="pv2 w-80">
           <div className="w-100 tc">Size of people sampled ({renderRatio(sample)})</div>
           <input
             type="range"
@@ -76,7 +76,7 @@ export function Component() {
             onChange={onChangeWrapper(setSample)}
           />
         </div>
-        <div className="pv3 w-80">
+        <div className="pv2 w-80">
           <div className="w-100 tc">
             Part of people that show no symptoms ({renderRatio(asymptomatic)})
           </div>
@@ -90,7 +90,7 @@ export function Component() {
             onChange={onChangeWrapper(setAsymptomatic)}
           />
         </div>
-        <div className="pv3 w-80 tc">
+        <div className="pv2 w-80 tc">
           <input id="onlysick" type="checkbox" checked={policy} onChange={togglePolicy} />
           <label className="w-100 tc pl3" htmlFor="onlysick">
             Only sample sick people

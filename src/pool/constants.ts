@@ -1,9 +1,4 @@
-export interface Constant {
-  default: number
-  max: number
-  min: number
-  step: number
-}
+import { Constant } from '../Common'
 
 export const DIFFUSION: Constant = {
   default: 0.1,

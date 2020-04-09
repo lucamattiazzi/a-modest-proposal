@@ -1,6 +1,6 @@
-import { sampleSize, intersection, sample, last, pick } from 'lodash-es'
+import { intersection, pick } from 'lodash-es'
 
-const { random, floor, ceil } = Math
+const { random, floor } = Math
 
 interface Sample {
   id: number
@@ -65,6 +65,7 @@ export function mixSamples(samples: Sample[], poolSize: number, poolsNumber: num
   for (const sample of samples) {
     const { hasCovid, id } = sample
     const currentSamplePoolIds = samplePools[id]
+    if (!currentSamplePoolIds) continue
     // a sample is considered positive unless at least one of its pools is negative
     const consideredPositive = currentSamplePoolIds.every(poolId => {
       const pool = pools[poolId]
