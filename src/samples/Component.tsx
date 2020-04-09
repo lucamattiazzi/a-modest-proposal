@@ -42,9 +42,9 @@ export function Component() {
   }
 
   useEffect(() => {
-    resizeCanvas()
     window.onresize = resizeCanvas
-  }, [resizeCanvas])
+    resizeCanvas()
+  }, [])
 
   return (
     <div className="w-100 h-100 flex items-center justify-around">
