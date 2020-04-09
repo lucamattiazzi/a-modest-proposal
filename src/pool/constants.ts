@@ -13,7 +13,7 @@ export const DIFFUSION: Constant = {
 }
 
 export const SAMPLES_NUMBER: Constant = {
-  default: 100,
+  default: 1000,
   max: 10000,
   min: 100,
   step: 100,
@@ -27,8 +27,8 @@ export const POOL_SIZE: Constant = {
 }
 
 export const POOL_NUMBER: Constant = {
-  default: 80,
+  default: 750,
   max: 10000,
-  min: 10,
-  step: 10,
+  min: 100,
+  step: 100,
 }
