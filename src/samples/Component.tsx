@@ -1,14 +1,11 @@
 import React, { useRef, useEffect, useState } from 'react'
-import { drawWorld } from '../lib/world'
-import { BASE_DIFFUSION_PERC, BASE_SAMPLE_PERC, BASE_ASYMPTOMATIC_PERC } from '../lib/constants'
+import { drawWorld } from './world'
+import { BASE_DIFFUSION_PERC, BASE_SAMPLE_PERC, BASE_ASYMPTOMATIC_PERC } from './constants'
+import { renderRatio, onChangeWrapper } from '../utils'
 
-const { round, min } = Math
+const { min } = Math
 
-function renderRatio(ratio: number) {
-  return `${round(ratio * 100)}%`
-}
-
-export function App() {
+export function Component() {
   const canvas = useRef<HTMLCanvasElement>()
   const [diffusion, setDiffusion] = useState(BASE_DIFFUSION_PERC)
   const [sample, setSample] = useState(BASE_SAMPLE_PERC)
@@ -17,18 +14,6 @@ export function App() {
 
   const [apparent, setApparent] = useState(BASE_DIFFUSION_PERC)
   const [found, setFound] = useState(0)
-
-  function onChangeDiffusion(e: React.ChangeEvent<HTMLInputElement>) {
-    setDiffusion(Number(e.target.value))
-  }
-
-  function onChangeSample(e: React.ChangeEvent<HTMLInputElement>) {
-    setSample(Number(e.target.value))
-  }
-
-  function onChangeAsymptomatic(e: React.ChangeEvent<HTMLInputElement>) {
-    setAsymptomatic(Number(e.target.value))
-  }
 
   function togglePolicy() {
     setPolicy(!policy)
@@ -59,7 +44,7 @@ export function App() {
   useEffect(() => {
     resizeCanvas()
     window.onresize = resizeCanvas
-  }, [])
+  }, [resizeCanvas])
 
   return (
     <div className="w-100 h-100 flex items-center justify-around">
@@ -76,7 +61,7 @@ export function App() {
             max="1"
             step="0.01"
             value={diffusion}
-            onChange={onChangeDiffusion}
+            onChange={onChangeWrapper(setDiffusion)}
           />
         </div>
         <div className="pv3 w-80">
@@ -88,7 +73,7 @@ export function App() {
             max="1"
             step="0.01"
             value={sample}
-            onChange={onChangeSample}
+            onChange={onChangeWrapper(setSample)}
           />
         </div>
         <div className="pv3 w-80">
@@ -102,7 +87,7 @@ export function App() {
             max="1"
             step="0.01"
             value={asymptomatic}
-            onChange={onChangeAsymptomatic}
+            onChange={onChangeWrapper(setAsymptomatic)}
           />
         </div>
         <div className="pv3 w-80 tc">
