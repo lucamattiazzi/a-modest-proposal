@@ -2,12 +2,12 @@ import { intersection, pick } from 'lodash-es'
 
 const { random, floor } = Math
 
-interface Sample {
+export interface Sample {
   id: number
   hasCovid: boolean
 }
 
-interface Pool {
+export interface Pool {
   id: number
   hasCovid: boolean
   samples: Sample['id'][]
@@ -15,7 +15,7 @@ interface Pool {
 
 interface SamplePools extends Record<Sample['id'], Pool['id'][]> {}
 
-function testSamples(
+export function testSamples(
   poolSamples: Sample[],
   falsePositiveRatio: number,
   falseNegativeRatio: number
@@ -27,7 +27,7 @@ function testSamples(
   return hasCovid
 }
 
-function checkForCovid(
+export function checkForCovid(
   sample: Sample,
   falsePositiveRatio: number,
   falseNegativeRatio: number
@@ -39,7 +39,7 @@ function checkForCovid(
   }
 }
 
-function generatePools(
+export function generatePools(
   samples: Sample[],
   poolSize: number,
   poolsNumber: number,

@@ -6,7 +6,8 @@
   "scripts": {
     "start": "accurapp-scripts start",
     "build": "accurapp-scripts build",
-    "test": "accurapp-scripts test",
+    "test": "jest",
+    "test-w": "jest --watch",
     "lint": "accurapp-scripts lint",
     "prettier": "accurapp-scripts prettier"
   },
@@ -30,6 +31,7 @@
     "accurapp-scripts": "^5.0.0",
     "babel-preset-accurapp": "^5.0.0",
     "eslint-config-accurapp": "^5.0.0",
+    "jest": "^25.3.0",
     "jest-config-accurapp": "^4.1.1",
     "raw-loader": "^4.0.0",
     "typescript": "^3.8.3",
