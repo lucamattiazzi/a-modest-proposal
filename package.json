@@ -25,6 +25,7 @@
   "devDependencies": {
     "@types/jest": "^25.1.4",
     "@types/node": "^12.12.31",
+    "@types/plotly.js": "^1.50.4",
     "@types/webpack-env": "^1.15.1",
     "accurapp-scripts": "^5.0.0",
     "babel-preset-accurapp": "^5.0.0",
@@ -42,6 +43,7 @@
     "d3": "^5.15.0",
     "lodash-es": "^4.17.15",
     "modern-normalize": "^0.6.0",
+    "plotly.js-dist": "^1.53.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "tachyons": "^4.11.1",
