@@ -1,5 +1,5 @@
 import { range } from 'lodash-es'
-import { generateSamples, mixSamples } from './lib'
+import { runSimulation } from './lib'
 import { renderRatio } from '../utils'
 
 const GRID_SIZE = 50
@@ -47,8 +47,7 @@ function generateHeatmapData(): any {
     for (let j = 0; j < GRID_SIZE; j++) {
       const compression = COMPRESSION_RANGE[0] + compressionStep * j
       const poolNumber = Math.round((1 - compression) * SAMPLES_NUMBER)
-      const samples = generateSamples(SAMPLES_NUMBER, diffusion)
-      const falsePositives = mixSamples(samples, POOL_SIZE, poolNumber)
+      const [falsePositives] = runSimulation(SAMPLES_NUMBER, diffusion, POOL_SIZE, poolNumber)
       const falsePositiveRatio = falsePositives / SAMPLES_NUMBER
       const rowText = buildRowText(compression, diffusion, falsePositiveRatio)
       textRow.push(rowText)
