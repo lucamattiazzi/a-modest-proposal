@@ -1,68 +1,53 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import ReactDOM from 'react-dom'
-import { Component as Samples } from './samples/Component'
 import { Component as Pool } from './pool/Component'
-import { Component as Papers } from './papers/Component'
 import 'modern-normalize'
 import 'tachyons'
 import 'tachyons-extra'
 import './reset.css'
 import './style.css'
+import { FIRST_VISIT_KEY } from './pool/constants'
+import GithubCorner from 'react-github-corner'
 
-const routes = {
-  samples: Samples,
-  pool: Pool,
-  papers: Papers,
+const ReactMarkdown = require('react-markdown')
+const { default: readme } = require('../README.md')
+
+const readmeFinalParagraph = `\n## Now What\nIf you've read till here, click on the top right corner X.`
+
+const firstVisit = localStorage.getItem(FIRST_VISIT_KEY)
+if (!firstVisit) {
+  localStorage.setItem(FIRST_VISIT_KEY, 'true')
 }
 
-interface RouteProps {
-  navigateTo: (path: string) => void
-}
-
-function getCurrentRoute(): string {
-  const { hash } = window.location
-  const hashKey = hash.replace('#', '')
-  const route = hashKey in routes ? hashKey : ''
-  return route
-}
-
-function Home(p: RouteProps) {
+function Info() {
   return (
-    <div className="w-100 h-100 flex flex-column items-center justify-center">
-      {Object.keys(routes).map(k => (
-        <div className="pointer pb3 f3" onClick={() => p.navigateTo(k)} key={k}>
-          Go to <b>{k}</b>
-        </div>
-      ))}
+    <div className="absolute top-0 left-0 w-100 h-100 bg-white-90 flex justify-center items-center">
+      <div className="w-90 h-90 overflow-y-auto bg-white pa4">
+        <ReactMarkdown source={readme + readmeFinalParagraph} />
+      </div>
     </div>
   )
 }
 
 function App() {
-  const baseRoute = getCurrentRoute()
-  const [route, setRoute] = useState(baseRoute)
+  const [showInfo, setShowInfo] = useState(!firstVisit)
 
-  function navigateTo(path: string) {
-    window.location.hash = path
-    setRoute(path)
+  function toggleShowInfo() {
+    setShowInfo(!showInfo)
   }
 
-  window.onhashchange = () => {
-    const newPath = getCurrentRoute()
-    navigateTo(newPath)
-  }
-
-  function goHome() {
-    navigateTo('')
-  }
-
-  const Component = routes[route] || Home
   return (
     <div className="w-100 h-100 relative">
-      <Component navigateTo={navigateTo} />
-      <div className="absolute top-1 right-1 pointer" onClick={goHome}>
-        Go Home
+      <Pool />
+      {showInfo && <Info />}
+      <div className="absolute top-2 right-2 pointer f1 monospace" onClick={toggleShowInfo}>
+        {showInfo ? 'X' : 'i'}
       </div>
+      <GithubCorner
+        href="https://github.com/lucamattiazzi/a-modest-proposal"
+        size={100}
+        direction="left"
+      />
     </div>
   )
 }

@@ -1,5 +1,5 @@
 {
-  "name": "covid-test",
+  "name": "a-modest-proposal",
   "private": true,
   "version": "0.1.0",
   "license": "MIT",
@@ -31,6 +31,7 @@
     "babel-preset-accurapp": "^5.0.0",
     "eslint-config-accurapp": "^5.0.0",
     "jest-config-accurapp": "^4.1.1",
+    "raw-loader": "^4.0.0",
     "typescript": "^3.8.3",
     "webpack-preset-accurapp": "^5.0.0"
   },
@@ -46,6 +47,8 @@
     "plotly.js-dist": "^1.53.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-github-corner": "^2.3.0",
+    "react-markdown": "^4.3.1",
     "tachyons": "^4.11.1",
     "tachyons-extra": "^1.1.3"
   },

@@ -15,15 +15,36 @@ interface Pool {
 
 interface SamplePools extends Record<Sample['id'], Pool['id'][]> {}
 
-function testSamples(poolSamples: Sample[]): boolean {
-  const hasCovid = poolSamples.reduce<boolean>((a, s) => a || s.hasCovid, false)
+function testSamples(
+  poolSamples: Sample[],
+  falsePositiveRatio: number,
+  falseNegativeRatio: number
+): boolean {
+  const hasCovid = poolSamples.reduce<boolean>(
+    (a, s) => a || checkForCovid(s, falsePositiveRatio, falseNegativeRatio),
+    false
+  )
   return hasCovid
+}
+
+function checkForCovid(
+  sample: Sample,
+  falsePositiveRatio: number,
+  falseNegativeRatio: number
+): boolean {
+  if (sample.hasCovid) {
+    return random() > falseNegativeRatio
+  } else {
+    return !(random() > falsePositiveRatio)
+  }
 }
 
 function generatePools(
   samples: Sample[],
   poolSize: number,
-  poolsNumber: number
+  poolsNumber: number,
+  falsePositiveRatio: number,
+  falseNegativeRatio: number
 ): [Pool[], SamplePools] {
   const pools: Pool[] = []
   const samplePools: SamplePools = {}
@@ -48,7 +69,7 @@ function generatePools(
     const pool = {
       id: pools.length,
       samples: poolSampleIds,
-      hasCovid: testSamples(poolSamples),
+      hasCovid: testSamples(poolSamples, falsePositiveRatio, falseNegativeRatio),
     }
     for (const sample of poolSamples) {
       samplePools[sample.id] = samplePools[sample.id] || []
@@ -59,21 +80,45 @@ function generatePools(
   return [pools, samplePools]
 }
 
-export function mixSamples(samples: Sample[], poolSize: number, poolsNumber: number) {
-  const [pools, samplePools] = generatePools(samples, poolSize, poolsNumber)
+export function runSimulation(
+  samplesNumber: number,
+  diffusion: number,
+  poolSize: number,
+  poolsNumber: number,
+  falsePositiveRatio: number = 0,
+  falseNegativeRatio: number = 0,
+  threshold: number = 1
+): [number, number] {
+  const samples = generateSamples(samplesNumber, diffusion)
+  const [pools, samplePools] = generatePools(
+    samples,
+    poolSize,
+    poolsNumber,
+    falsePositiveRatio,
+    falseNegativeRatio
+  )
   let falsePositives = 0
+  let falseNegatives = 0
   for (const sample of samples) {
     const { hasCovid, id } = sample
     const currentSamplePoolIds = samplePools[id]
-    if (!currentSamplePoolIds) continue
+    if (!currentSamplePoolIds || currentSamplePoolIds.length === 0) {
+      console.warn('wow')
+      continue
+    }
     // a sample is considered positive unless at least one of its pools is negative
-    const consideredPositive = currentSamplePoolIds.every(poolId => {
+    const positivePools = currentSamplePoolIds.filter(poolId => {
       const pool = pools[poolId]
-      return pool.hasCovid
+      const hasCovid = checkForCovid(pool, falsePositiveRatio, falseNegativeRatio)
+      return hasCovid
     })
-    if (consideredPositive !== hasCovid) falsePositives++
+    const positivePoolRatio = positivePools.length / currentSamplePoolIds.length
+    const consideredPositive = positivePoolRatio >= threshold
+    if (consideredPositive === hasCovid) continue
+    if (consideredPositive) falsePositives++
+    if (!consideredPositive) falseNegatives++ // yeah i like simmetry, sue me
   }
-  return falsePositives
+  return [falsePositives, falseNegatives]
 }
 
 export function generateSamples(size: number, diffusion: number): Sample[] {
