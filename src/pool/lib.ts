@@ -5,11 +5,10 @@ const { random, floor } = Math
 export interface Sample {
   id: number
   hasCovid: boolean
+  testResults: boolean | null
 }
 
-export interface Pool {
-  id: number
-  hasCovid: boolean
+export interface Pool extends Sample {
   samples: Sample['id'][]
 }
 
@@ -21,18 +20,19 @@ export function createPool(id: number, samples: Sample[]): Pool {
     samples: samples.map(s => s.id),
     id,
     hasCovid,
+    testResults: null,
   }
 }
 
 export function checkForCovid(
-  sample: Sample,
+  pool: Pool,
   falsePositiveRatio: number,
   falseNegativeRatio: number
-): boolean {
-  if (sample.hasCovid) {
-    return random() > falseNegativeRatio
+): void {
+  if (pool.hasCovid) {
+    pool.testResults = random() > falseNegativeRatio
   } else {
-    return !(random() > falsePositiveRatio)
+    pool.testResults = !(random() > falsePositiveRatio)
   }
 }
 
@@ -43,6 +43,7 @@ export function generateSamples(size: number, diffusion: number): Sample[] {
       return {
         id: idx,
         hasCovid: random() < diffusion,
+        testResults: null,
       }
     })
 }
@@ -99,14 +100,16 @@ export function runSimulation(
     const { hasCovid, id } = sample
     const currentSamplePoolIds = samplePools[id]
     if (!currentSamplePoolIds || currentSamplePoolIds.length === 0) {
-      console.warn('wow')
+      alert('ERROR')
       continue
     }
     // a sample is considered positive unless at least one of its pools is negative
     const positivePools = currentSamplePoolIds.filter(poolId => {
       const pool = pools[poolId]
-      const hasCovid = checkForCovid(pool, falsePositiveRatio, falseNegativeRatio)
-      return hasCovid
+      const existingPoolResults = pool.testResults
+      if (existingPoolResults !== null) return existingPoolResults
+      checkForCovid(pool, falsePositiveRatio, falseNegativeRatio)
+      return existingPoolResults
     })
     const positivePoolRatio = positivePools.length / currentSamplePoolIds.length
     const consideredPositive = positivePoolRatio >= threshold

@@ -1,4 +1,10 @@
-import { checkForCovid, createPool, generateSamples } from '../../src/pool/lib'
+import {
+  checkForCovid,
+  createPool,
+  generateSamples,
+  generatePools,
+  runSimulation,
+} from '../../src/pool/lib'
 
 const POOLS_NUMBER = 500
 
@@ -67,30 +73,43 @@ describe(checkForCovid, () => {
   it('Should flip ~2/10 of the times the positive if there are 20% false negatives, the negatives should remain the same', () => {
     const [falsePositives, falseNegatives] = testManySamples(0, 0.2)
     const falseNegativeRatio = falseNegatives / POOLS_NUMBER
+    const expectedRatio = (POOLS_NUMBER * 0.2) / POOLS_NUMBER
     expect(falsePositives).toBe(0)
-    expect(falseNegatives / POOLS_NUMBER).toBeCloseTo((POOLS_NUMBER * 0.2) / POOLS_NUMBER, 1)
+    expect(falseNegativeRatio).toBeCloseTo(expectedRatio, 1)
   })
 })
 
 describe(generateSamples, () => {
   it('Should generate 0 positives if diffusion is 0', () => {
-    const samples = generateSamples(100, 0)
+    const samples = generateSamples(POOLS_NUMBER, 0)
     const positives = samples.filter(s => s.hasCovid)
-    expect(samples.length).toBe(100)
+    expect(samples.length).toBe(POOLS_NUMBER)
     expect(positives.length).toBe(0)
   })
 
   it('Should generate only positives if diffusion is 1', () => {
-    const samples = generateSamples(100, 0)
+    const samples = generateSamples(POOLS_NUMBER, 1)
     const positives = samples.filter(s => s.hasCovid)
-    expect(samples.length).toBe(100)
-    expect(positives.length).toBe(100)
+    expect(samples.length).toBe(POOLS_NUMBER)
+    expect(positives.length).toBe(POOLS_NUMBER)
   })
 
   it('Should generate ~10 positives if diffusion is 0.1', () => {
-    const samples = generateSamples(100, 0)
+    const samples = generateSamples(POOLS_NUMBER, 0.1)
     const positives = samples.filter(s => s.hasCovid)
-    expect(samples.length).toBe(100)
-    expect(positives.length).toBe(100)
+    const positivesRatio = positives.length / POOLS_NUMBER
+    expect(samples.length).toBe(POOLS_NUMBER)
+    expect(positivesRatio).toBeCloseTo(0.1, 1)
+  })
+
+  it('Should generate ~20 negatives if diffusion is 0.8', () => {
+    const samples = generateSamples(POOLS_NUMBER, 0.8)
+    const negatives = samples.filter(s => !s.hasCovid)
+    const negativesRatio = negatives.length / POOLS_NUMBER
+    console.log('negativesRatio', negativesRatio)
+    expect(samples.length).toBe(POOLS_NUMBER)
+    expect(negativesRatio).toBeCloseTo(0.2, 1)
   })
 })
+
+describe(generatePools, () => {})
