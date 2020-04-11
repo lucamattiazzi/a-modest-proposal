@@ -1,6 +1,8 @@
-import { intersection, pick } from 'lodash-es'
+import { intersection, pick, shuffle, sampleSize } from 'lodash-es'
 
 const { random, floor } = Math
+
+const MAX_TRIALS = 5
 
 export interface Sample {
   id: number
@@ -55,24 +57,28 @@ export function generatePools(
 ): [Pool[], SamplePools] {
   const pools: Pool[] = []
   const samplePools: SamplePools = {}
+  let availableSamples = shuffle(samples) // let's mix up the things
+  let trials = 0 // number of max trials if a couple is repeated
   while (pools.length < poolsNumber) {
-    // naive approach:
-    // first pools are simply consecutive samples until all of the samples are in a pool
-    // then, for each of the next rounds, consecutive numbers would cause pools with more
-    // than one sample in common, therefore it will simply shift of poolSize + 1 (the first
-    // time). then it simply moves of rounds * poolSize + 1
-    const idx = (pools.length * poolSize) % samples.length
-    const jdx = floor((pools.length * poolSize) / samples.length)
-    const poolIndices = Array(poolSize)
-      .fill(undefined)
-      .map((_, i) => {
-        return (idx + i + i * jdx * poolSize) % samples.length
-      })
-    const poolSamples = Object.values(pick(samples, poolIndices))
-    const poolSampleIds = poolSamples.map(s => s.id)
+    // even naiver approach:
+    // random as fuck, but avoid repeated couples, also should keeps the number
+    // of pools for each sample around the same
+
+    if (availableSamples.length < poolSize) {
+      // when we get to the end, the last ones are be sadly ignored
+      availableSamples = shuffle(samples)
+    }
+
+    const poolSamples = availableSamples.splice(0, poolSize)
+    const poolSampleIds = poolSamples.map(p => p.id)
     // checks that no couple is repeated among all pools
     const isValid = pools.every(p => intersection(p.samples, poolSampleIds).length < 2)
-    if (!isValid) console.error('Something got replicated!')
+    if (!isValid && trials < MAX_TRIALS) {
+      trials++
+      availableSamples = shuffle([...availableSamples, ...poolSamples])
+      continue
+    }
+    trials = 0
     const pool = createPool(pools.length, poolSamples)
     for (const sample of poolSamples) {
       samplePools[sample.id] = samplePools[sample.id] || []
@@ -96,14 +102,16 @@ export function runSimulation(
   const [pools, samplePools] = generatePools(samples, poolSize, poolsNumber)
   let falsePositives = 0
   let falseNegatives = 0
+  let minPoolsPerSample = Infinity
+  let maxPoolsPerSample = -Infinity
   for (const sample of samples) {
     const { hasCovid, id } = sample
     const currentSamplePoolIds = samplePools[id]
-    if (!currentSamplePoolIds || currentSamplePoolIds.length === 0) {
-      alert('ERROR')
-      continue
-    }
-    // a sample is considered positive unless at least one of its pools is negative
+    if (!currentSamplePoolIds || currentSamplePoolIds.length === 0) continue
+    minPoolsPerSample = Math.min(currentSamplePoolIds.length, minPoolsPerSample)
+    maxPoolsPerSample = Math.max(currentSamplePoolIds.length, maxPoolsPerSample)
+    // a sample is considered positive if the positive/all ratio is higher than an
+    // arbitrary threshold
     const positivePools = currentSamplePoolIds.filter(poolId => {
       const pool = pools[poolId]
       if (pool.testResults !== null) return pool.testResults
