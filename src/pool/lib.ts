@@ -106,10 +106,9 @@ export function runSimulation(
     // a sample is considered positive unless at least one of its pools is negative
     const positivePools = currentSamplePoolIds.filter(poolId => {
       const pool = pools[poolId]
-      const existingPoolResults = pool.testResults
-      if (existingPoolResults !== null) return existingPoolResults
+      if (pool.testResults !== null) return pool.testResults
       checkForCovid(pool, falsePositiveRatio, falseNegativeRatio)
-      return existingPoolResults
+      return pool.testResults
     })
     const positivePoolRatio = positivePools.length / currentSamplePoolIds.length
     const consideredPositive = positivePoolRatio >= threshold
