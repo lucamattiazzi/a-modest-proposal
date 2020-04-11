@@ -1,5 +1,5 @@
 import React from 'react'
-import { onChangeWrapper } from '../utils'
+import { onChangeWrapper } from './utils'
 import { Constant } from './constants'
 
 interface RangeProps {

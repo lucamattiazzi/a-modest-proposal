@@ -21,7 +21,7 @@ export const SAMPLES_NUMBER: Constant = {
 
 export const POOL_SIZE: Constant = {
   default: 5,
-  max: 12,
+  max: 20,
   min: 2,
   step: 1,
 }

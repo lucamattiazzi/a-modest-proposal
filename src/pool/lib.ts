@@ -1,6 +1,6 @@
-import { intersection, pick, shuffle, sampleSize } from 'lodash-es'
+import { intersection, shuffle } from 'lodash-es'
 
-const { random, floor } = Math
+const { random } = Math
 
 const MAX_TRIALS = 5
 
@@ -97,7 +97,7 @@ export function runSimulation(
   falsePositiveRatio: number = 0,
   falseNegativeRatio: number = 0,
   threshold: number = 1
-): [number, number] {
+): [number, number, number, number] {
   const samples = generateSamples(samplesNumber, diffusion)
   const [pools, samplePools] = generatePools(samples, poolSize, poolsNumber)
   let falsePositives = 0
@@ -124,5 +124,5 @@ export function runSimulation(
     if (consideredPositive) falsePositives++
     if (!consideredPositive) falseNegatives++ // yeah i like simmetry, sue me
   }
-  return [falsePositives, falseNegatives]
+  return [falsePositives, falseNegatives, minPoolsPerSample, maxPoolsPerSample]
 }
