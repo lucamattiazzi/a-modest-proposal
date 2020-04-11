@@ -1,17 +1,11 @@
 import React from 'react'
-import { onChangeWrapper } from './utils'
+import { onChangeWrapper } from '../utils'
+import { Constant } from './constants'
 
 interface RangeProps {
   constants: Constant
   setVariable: Function
   variable: number
-}
-
-export interface Constant {
-  default: number
-  max: number
-  min: number
-  step: number
 }
 
 export function Range(p: RangeProps) {

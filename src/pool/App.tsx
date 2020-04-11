@@ -10,11 +10,11 @@ import {
   THRESHOLD,
 } from './constants'
 import { renderRatio } from '../utils'
-import { Range } from '../Common'
+import { Range } from './Range'
 import { getHeatmapData } from './generate-heatmap'
 const Plotly = require('plotly.js-dist')
 
-export function Component() {
+export function App() {
   const [diffusion, setDiffusion] = useState(DIFFUSION.default)
   const [samplesNumber, setSamplesNumber] = useState(SAMPLES_NUMBER.default)
   const [poolSize, setPoolSize] = useState(POOL_SIZE.default)

@@ -1,24 +1,39 @@
-import { checkForCovid } from '../../src/pool/lib'
+import { checkForCovid, createPool } from '../../src/pool/lib'
 
 const TRIALS_NUMBER = 500
-const ERROR_RANGE = 0.3
+
+const positiveSample = { hasCovid: true, id: 1 }
+const negativeSample = { hasCovid: false, id: 2 }
+
+function runManyTrials(falsePositiveRatio: number, falseNegativeRatio: number) {
+  let falsePositives = 0
+  let falseNegatives = 0
+  for (let i = 0; i < TRIALS_NUMBER; i++) {
+    const positiveResult = checkForCovid(positiveSample, falsePositiveRatio, falseNegativeRatio)
+    const negativeResult = checkForCovid(negativeSample, falsePositiveRatio, falseNegativeRatio)
+    if (positiveResult !== true) falseNegatives++
+    if (negativeResult !== false) falsePositives++
+  }
+  return [falsePositives, falseNegatives]
+}
+
+describe(createPool, () => {
+  it('Should create a negative pool from only negative samples', () => {
+    const samples = [negativeSample, negativeSample, negativeSample]
+    const pool = createPool(1, samples)
+    expect(pool).toHaveProperty('id', 1)
+    expect(pool).toHaveProperty('hasCovid', false)
+  })
+
+  it('Should create a positive pool with 1 positive sample', () => {
+    const samples = [negativeSample, negativeSample, positiveSample]
+    const pool = createPool(1, samples)
+    expect(pool).toHaveProperty('id', 1)
+    expect(pool).toHaveProperty('hasCovid', true)
+  })
+})
 
 describe(checkForCovid, () => {
-  const positiveSample = { hasCovid: true, id: 1 }
-  const negativeSample = { hasCovid: false, id: 2 }
-
-  function runManyTrials(falsePositiveRatio: number, falseNegativeRatio: number) {
-    let falsePositives = 0
-    let falseNegatives = 0
-    for (let i = 0; i < TRIALS_NUMBER; i++) {
-      const positiveResult = checkForCovid(positiveSample, falsePositiveRatio, falseNegativeRatio)
-      const negativeResult = checkForCovid(negativeSample, falsePositiveRatio, falseNegativeRatio)
-      if (positiveResult !== true) falseNegatives++
-      if (negativeResult !== false) falsePositives++
-    }
-    return [falsePositives, falseNegatives]
-  }
-
   it('Should return the correct value with 0 false positives and 0 false negatives', () => {
     const [falsePositives, falseNegatives] = runManyTrials(0, 0)
     expect(falsePositives).toBe(0)

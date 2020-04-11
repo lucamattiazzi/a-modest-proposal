@@ -15,16 +15,13 @@ export interface Pool {
 
 interface SamplePools extends Record<Sample['id'], Pool['id'][]> {}
 
-export function testSamples(
-  poolSamples: Sample[],
-  falsePositiveRatio: number,
-  falseNegativeRatio: number
-): boolean {
-  const hasCovid = poolSamples.reduce<boolean>(
-    (a, s) => a || checkForCovid(s, falsePositiveRatio, falseNegativeRatio),
-    false
-  )
-  return hasCovid
+export function createPool(id: number, samples: Sample[]): Pool {
+  const hasCovid = samples.reduce<boolean>((a, s) => a || s.hasCovid, false)
+  return {
+    samples: samples.map(s => s.id),
+    id,
+    hasCovid,
+  }
 }
 
 export function checkForCovid(
@@ -42,9 +39,7 @@ export function checkForCovid(
 export function generatePools(
   samples: Sample[],
   poolSize: number,
-  poolsNumber: number,
-  falsePositiveRatio: number,
-  falseNegativeRatio: number
+  poolsNumber: number
 ): [Pool[], SamplePools] {
   const pools: Pool[] = []
   const samplePools: SamplePools = {}
@@ -66,11 +61,7 @@ export function generatePools(
     // checks that no couple is repeated among all pools
     const isValid = pools.every(p => intersection(p.samples, poolSampleIds).length < 2)
     if (!isValid) console.error('Something got replicated!')
-    const pool = {
-      id: pools.length,
-      samples: poolSampleIds,
-      hasCovid: testSamples(poolSamples, falsePositiveRatio, falseNegativeRatio),
-    }
+    const pool = createPool(pools.length, poolSamples)
     for (const sample of poolSamples) {
       samplePools[sample.id] = samplePools[sample.id] || []
       samplePools[sample.id].push(pool.id)
@@ -90,13 +81,7 @@ export function runSimulation(
   threshold: number = 1
 ): [number, number] {
   const samples = generateSamples(samplesNumber, diffusion)
-  const [pools, samplePools] = generatePools(
-    samples,
-    poolSize,
-    poolsNumber,
-    falsePositiveRatio,
-    falseNegativeRatio
-  )
+  const [pools, samplePools] = generatePools(samples, poolSize, poolsNumber)
   let falsePositives = 0
   let falseNegatives = 0
   for (const sample of samples) {

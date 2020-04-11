@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react'
 import ReactDOM from 'react-dom'
-import { Component as Pool } from './pool/Component'
+import { App } from './pool/App'
 import 'modern-normalize'
 import 'tachyons'
 import 'tachyons-extra'
@@ -29,7 +29,7 @@ function Info() {
   )
 }
 
-function App() {
+function Main() {
   const [showInfo, setShowInfo] = useState(!firstVisit)
 
   function toggleShowInfo() {
@@ -38,22 +38,18 @@ function App() {
 
   return (
     <div className="w-100 h-100 relative">
-      <Pool />
+      <App />
       {showInfo && <Info />}
-      <div className="absolute top-2 right-2 pointer f1 monospace" onClick={toggleShowInfo}>
+      <div className="absolute bottom-2 right-2 pointer f1 monospace" onClick={toggleShowInfo}>
         {showInfo ? 'X' : 'i'}
       </div>
       <GithubCorner
         href="https://github.com/lucamattiazzi/a-modest-proposal"
         size={100}
-        direction="left"
+        direction="right"
       />
     </div>
   )
 }
 
-function renderApp() {
-  ReactDOM.render(<App />, document.getElementById('root'))
-}
-
-renderApp()
+ReactDOM.render(<Main />, document.getElementById('root'))
