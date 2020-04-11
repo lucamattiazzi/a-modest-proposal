@@ -8,17 +8,17 @@ import {
 
 const POOLS_NUMBER = 500
 
-const positiveSample = { hasCovid: true, id: 1 }
-const negativeSample = { hasCovid: false, id: 2 }
+const positiveSample = { hasCovid: true, id: 1, testResults: null }
+const negativeSample = { hasCovid: false, id: 2, testResults: null }
 
 function testManySamples(falsePositiveRatio: number, falseNegativeRatio: number) {
   let falsePositives = 0
   let falseNegatives = 0
   for (let i = 0; i < POOLS_NUMBER; i++) {
-    const positiveResult = checkForCovid(positiveSample, falsePositiveRatio, falseNegativeRatio)
-    const negativeResult = checkForCovid(negativeSample, falsePositiveRatio, falseNegativeRatio)
-    if (positiveResult !== true) falseNegatives++
-    if (negativeResult !== false) falsePositives++
+    checkForCovid(positiveSample, falsePositiveRatio, falseNegativeRatio)
+    checkForCovid(negativeSample, falsePositiveRatio, falseNegativeRatio)
+    if (positiveSample.testResults !== true) falseNegatives++
+    if (negativeSample.testResults !== false) falsePositives++
   }
   return [falsePositives, falseNegatives]
 }

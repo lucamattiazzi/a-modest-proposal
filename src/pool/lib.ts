@@ -25,7 +25,7 @@ export function createPool(id: number, samples: Sample[]): Pool {
 }
 
 export function checkForCovid(
-  pool: Pool,
+  pool: Sample,
   falsePositiveRatio: number,
   falseNegativeRatio: number
 ): void {
