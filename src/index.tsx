@@ -8,6 +8,7 @@ import './reset.css'
 import './style.css'
 import { FIRST_VISIT_KEY } from './pool/constants'
 import GithubCorner from 'react-github-corner'
+import './magic2'
 
 const ReactMarkdown = require('react-markdown')
 const { default: readme } = require('../README.md')

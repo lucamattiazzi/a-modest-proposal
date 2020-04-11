@@ -36,6 +36,17 @@ export function checkForCovid(
   }
 }
 
+export function generateSamples(size: number, diffusion: number): Sample[] {
+  return Array(size)
+    .fill(undefined)
+    .map((_, idx) => {
+      return {
+        id: idx,
+        hasCovid: random() < diffusion,
+      }
+    })
+}
+
 export function generatePools(
   samples: Sample[],
   poolSize: number,
@@ -104,15 +115,4 @@ export function runSimulation(
     if (!consideredPositive) falseNegatives++ // yeah i like simmetry, sue me
   }
   return [falsePositives, falseNegatives]
-}
-
-export function generateSamples(size: number, diffusion: number): Sample[] {
-  return Array(size)
-    .fill(undefined)
-    .map((_, idx) => {
-      return {
-        id: idx,
-        hasCovid: random() < diffusion,
-      }
-    })
 }
