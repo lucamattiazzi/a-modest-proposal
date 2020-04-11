@@ -3,12 +3,12 @@ import ReactDOM from 'react-dom'
 import { App } from './pool/App'
 import 'modern-normalize'
 import 'tachyons'
+import 'js-frood'
 import 'tachyons-extra'
 import './reset.css'
 import './style.css'
 import { FIRST_VISIT_KEY } from './pool/constants'
 import GithubCorner from 'react-github-corner'
-import './magic2'
 
 const ReactMarkdown = require('react-markdown')
 const { default: readme } = require('../README.md')

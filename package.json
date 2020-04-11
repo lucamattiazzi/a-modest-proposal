@@ -45,6 +45,7 @@
     "@accurat/tachyons-lite": "^1.0.4",
     "d3": "^5.15.0",
     "fork-ts-checker-webpack-plugin": "^4.1.3",
+    "js-frood": "^1.0.0",
     "lodash-es": "^4.17.15",
     "modern-normalize": "^0.6.0",
     "plotly.js-dist": "^1.53.0",
