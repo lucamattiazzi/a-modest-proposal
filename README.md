@@ -83,4 +83,3 @@ The heatmap is generated running some simulations for some values, but has becom
 ## Does it make sense?
 
 It does to me! If you spot a mistake (not at all improbable), think that all of this is total bullshit, have any question or want to tell me anything, please contact me via github (top left corner) or at l.d.mattiazzi@gmail.com
-I'll be forever thankful!

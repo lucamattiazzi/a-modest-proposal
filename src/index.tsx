@@ -13,7 +13,7 @@ import GithubCorner from 'react-github-corner'
 const ReactMarkdown = require('react-markdown')
 const { default: readme } = require('../README.md')
 
-const readmeFinalParagraph = `\n## Now What\nIf you've read till here, click on the top right corner X.`
+const readmeFinalParagraph = `\n## Now What\nIf you've read till here, click on the top right corner X.\nAs a prize for your patience, try to write the word for 'A big, dumb, balding North American ape with no chin and a short temper' (all lowercase).`
 
 const firstVisit = localStorage.getItem(FIRST_VISIT_KEY)
 if (!firstVisit) {
@@ -41,13 +41,13 @@ function Main() {
     <div className="w-100 h-100 relative">
       <App />
       {showInfo && <Info />}
-      <div className="absolute bottom-2 right-2 pointer f1 monospace" onClick={toggleShowInfo}>
+      <div className="absolute top-2 right-2 pointer f1 monospace" onClick={toggleShowInfo}>
         {showInfo ? 'X' : 'i'}
       </div>
       <GithubCorner
         href="https://github.com/lucamattiazzi/a-modest-proposal"
         size={100}
-        direction="right"
+        direction="left"
       />
     </div>
   )
