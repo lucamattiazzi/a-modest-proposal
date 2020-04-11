@@ -24,7 +24,6 @@
     ]
   },
   "devDependencies": {
-    "@types/d3": "^5.7.2",
     "@types/jest": "^25.1.4",
     "@types/lodash-es": "^4.17.3",
     "@types/node": "^12.12.31",
@@ -42,7 +41,6 @@
   },
   "dependencies": {
     "@accurat/tachyons-lite": "^1.0.4",
-    "d3": "^5.15.0",
     "js-frood": "^1.0.0",
     "lodash-es": "^4.17.15",
     "modern-normalize": "^0.6.0",
