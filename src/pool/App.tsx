@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { runSimulation } from './lib'
 import {
   DIFFUSION,
@@ -9,17 +9,19 @@ import {
   FALSE_NEGATIVE_RATIO,
   THRESHOLD,
 } from './constants'
-import { renderRatio } from './utils'
+import { renderRatio, saveStateInQuery, loadStateFromQuery } from './utils'
 import { Range } from './Range'
 
 export function App() {
-  const [diffusion, setDiffusion] = useState(DIFFUSION.default)
-  const [samplesNumber, setSamplesNumber] = useState(SAMPLES_NUMBER.default)
-  const [poolSize, setPoolSize] = useState(POOL_SIZE.default)
-  const [poolNumber, setPoolNumber] = useState(POOL_NUMBER.default)
-  const [falsePositiveRatio, setFalsePositiveRatio] = useState(FALSE_POSITIVE_RATIO.default)
-  const [falseNegativeRatio, setFalseNegativeRatio] = useState(FALSE_NEGATIVE_RATIO.default)
-  const [threshold, setThreshold] = useState(THRESHOLD.default)
+  const baseState = loadStateFromQuery()
+
+  const [diffusion, setDiffusion] = useState(baseState.diffusion ?? DIFFUSION.default)
+  const [samplesNumber, setSamplesNumber] = useState(baseState.samplesNumber ?? SAMPLES_NUMBER.default)
+  const [poolSize, setPoolSize] = useState(baseState.poolSize ?? POOL_SIZE.default)
+  const [poolNumber, setPoolNumber] = useState(baseState.poolNumber ?? POOL_NUMBER.default)
+  const [falsePositiveRatio, setFalsePositiveRatio] = useState(baseState.falsePositiveRatio ?? FALSE_POSITIVE_RATIO.default)
+  const [falseNegativeRatio, setFalseNegativeRatio] = useState(baseState.falseNegativeRatio ?? FALSE_NEGATIVE_RATIO.default)
+  const [threshold, setThreshold] = useState(baseState.threshold ?? THRESHOLD.default)
 
   const [falsePositives, setFalsePositives] = useState(0)
   const [falseNegatives, setFalseNegatives] = useState(0)
@@ -65,6 +67,26 @@ export function App() {
     setFalseNegativeRatio(FALSE_NEGATIVE_RATIO.default)
     setThreshold(THRESHOLD.default)
   }
+
+  useEffect(() => {
+    saveStateInQuery({
+      diffusion,
+      samplesNumber,
+      poolSize,
+      poolNumber,
+      falsePositiveRatio,
+      falseNegativeRatio,
+      threshold,
+    })
+  }, [
+    diffusion,
+    samplesNumber,
+    poolSize,
+    poolNumber,
+    falsePositiveRatio,
+    falseNegativeRatio,
+    threshold,
+  ])
 
   return (
     <div className="w-100 h-100 flex items-center justify-around">
