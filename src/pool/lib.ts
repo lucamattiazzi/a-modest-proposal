@@ -123,10 +123,8 @@ export function runSimulation(
     })
     const positivePoolRatio = positivePools.length / currentSamplePoolIds.length
     const consideredPositive = positivePoolRatio >= threshold
-    if (consideredPositive === hasCovid) continue
-    console.log(sample.id, hasCovid, positivePools.length, currentSamplePoolIds.length)
-    if (consideredPositive) falsePositives++
-    if (!consideredPositive) falseNegatives++ // yeah i like simmetry, sue me
+    if (consideredPositive && !hasCovid) falsePositives++
+    if (!consideredPositive && hasCovid) falseNegatives++
   }
   return [falsePositives, falseNegatives, minPoolsPerSample, maxPoolsPerSample]
 }
