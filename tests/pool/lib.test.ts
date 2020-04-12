@@ -106,7 +106,6 @@ describe(generateSamples, () => {
     const samples = generateSamples(POOLS_NUMBER, 0.8)
     const negatives = samples.filter(s => !s.hasCovid)
     const negativesRatio = negatives.length / POOLS_NUMBER
-    console.log('negativesRatio', negativesRatio)
     expect(samples.length).toBe(POOLS_NUMBER)
     expect(negativesRatio).toBeCloseTo(0.2, 1)
   })
