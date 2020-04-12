@@ -112,4 +112,21 @@ describe(generateSamples, () => {
   })
 })
 
-describe(generatePools, () => {})
+describe(generatePools, () => {
+  const positives = Array(100).fill(positiveSample)
+  const negatives = Array(100).fill(negativeSample)
+
+  it('Should only generate positive pools from positive samples', () => {
+    const [polls] = generatePools(positives, 10, 50)
+    const positivePolls = polls.filter(p => p.hasCovid)
+    expect(polls.length).toBe(50)
+    expect(positivePolls.length).toBe(polls.length)
+  })
+
+  it('Should only generate negative pools from negative samples', () => {
+    const [polls] = generatePools(negatives, 10, 50)
+    const negativePolls = polls.filter(p => !p.hasCovid)
+    expect(polls.length).toBe(50)
+    expect(negativePolls.length).toBe(polls.length)
+  })
+})
