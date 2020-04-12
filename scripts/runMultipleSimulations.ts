@@ -1,22 +1,54 @@
-import { intersection, shuffle } from 'lodash-es'
+const { intersection, shuffle, range } = require('lodash')
+const cartProduct = require('cartesian-product')
+
+interface Constant {
+  min: number
+  max: number
+}
 
 const { random } = Math
 
 const MAX_TRIALS = 5
+const VALUES_FOR_CONSTANT = 10
+const SAMPLES_NUMBER = 1000
 
-export interface Sample {
+const DIFFUSION_RANGE = [0, 1]
+const POOL_SIZE_RANGE = [2, 20]
+const COMPRESSION_RANGE = [0.1, 1]
+const FALSE_POSITIVE_RATIO_RANGE = [0, 0.5]
+const FALSE_NEGATIVE_RATIO_RANGE = [0, 0.5]
+const THRESHOLD_RANGE = [0, 1]
+
+const CONSTANT_RANGES = [
+  DIFFUSION_RANGE,
+  POOL_SIZE_RANGE,
+  COMPRESSION_RANGE,
+  FALSE_POSITIVE_RATIO_RANGE,
+  FALSE_NEGATIVE_RATIO_RANGE,
+  THRESHOLD_RANGE,
+]
+
+const CONSTANT_VALUES = CONSTANT_RANGES.map(r => {
+  const step = (r[1] - r[0]) / (VALUES_FOR_CONSTANT - 1)
+  const values = [...range(r[0], r[1], step), r[1]]
+  return values
+})
+
+const allInputs = cartProduct(CONSTANT_VALUES)
+
+interface Sample {
   id: number
   hasCovid: boolean
   testResults: boolean | null
 }
 
-export interface Pool extends Sample {
+interface Pool extends Sample {
   samples: Sample['id'][]
 }
 
 interface SamplePools extends Record<Sample['id'], Pool['id'][]> {}
 
-export function createPool(id: number, samples: Sample[]): Pool {
+function createPool(id: number, samples: Sample[]): Pool {
   const hasCovid = samples.reduce<boolean>((a, s) => a || s.hasCovid, false)
   return {
     samples: samples.map(s => s.id),
@@ -26,11 +58,7 @@ export function createPool(id: number, samples: Sample[]): Pool {
   }
 }
 
-export function checkForCovid(
-  pool: Sample,
-  falsePositiveRatio: number,
-  falseNegativeRatio: number
-): void {
+function checkForCovid(pool: Sample, falsePositiveRatio: number, falseNegativeRatio: number): void {
   if (pool.hasCovid) {
     pool.testResults = random() > falseNegativeRatio
   } else {
@@ -38,7 +66,7 @@ export function checkForCovid(
   }
 }
 
-export function generateSamples(size: number, diffusion: number): Sample[] {
+function generateSamples(size: number, diffusion: number): Sample[] {
   return Array(size)
     .fill(undefined)
     .map((_, idx) => {
@@ -50,14 +78,14 @@ export function generateSamples(size: number, diffusion: number): Sample[] {
     })
 }
 
-export function generatePools(
+function generatePools(
   samples: Sample[],
   poolSize: number,
   poolsNumber: number
 ): [Pool[], SamplePools] {
   const pools: Pool[] = []
   const samplePools: SamplePools = {}
-  let availableSamples = shuffle(samples) // let's mix up the things
+  let availableSamples: Sample[] = shuffle(samples) // let's mix up the things
   let trials = 0 // number of max trials if a couple is repeated
   while (pools.length < poolsNumber) {
     // even naiver approach:
@@ -89,7 +117,7 @@ export function generatePools(
   return [pools, samplePools]
 }
 
-export function runSimulation(
+function runSimulation(
   samplesNumber: number,
   diffusion: number,
   poolSize: number,
@@ -107,6 +135,7 @@ export function runSimulation(
   for (const sample of samples) {
     const { hasCovid, id } = sample
     const currentSamplePoolIds = samplePools[id] || []
+
     minPoolsPerSample = Math.min(currentSamplePoolIds.length, minPoolsPerSample)
     maxPoolsPerSample = Math.max(currentSamplePoolIds.length, maxPoolsPerSample)
     // a sample is considered positive if the positive/all ratio is higher than an
@@ -124,4 +153,27 @@ export function runSimulation(
     if (!consideredPositive && hasCovid) falseNegatives++
   }
   return [falsePositives, falseNegatives, minPoolsPerSample, maxPoolsPerSample]
+}
+
+for (const inputs of allInputs) {
+  const [
+    diffusion,
+    poolSize,
+    compression,
+    falsePositiveRatio,
+    falseNegativeRatio,
+    threshold,
+  ] = inputs
+  const poolsNumber = Math.round(SAMPLES_NUMBER * compression)
+  const results = runSimulation(
+    SAMPLES_NUMBER,
+    diffusion,
+    poolSize,
+    poolsNumber,
+    falsePositiveRatio,
+    falseNegativeRatio,
+    threshold
+  )
+  console.log('results', results)
+  break
 }

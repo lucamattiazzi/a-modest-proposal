@@ -1,12 +1,8 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": [
-      "esnext",
-      "dom",
-      "dom.iterable"
-    ],
-    "module": "esnext",
+    "lib": ["esnext", "dom", "dom.iterable"],
+    "module": "commonjs",
     "moduleResolution": "node",
     "esModuleInterop": true,
     "allowJs": true,
@@ -23,7 +19,5 @@
     "forceConsistentCasingInFileNames": true,
     "experimentalDecorators": true
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }
