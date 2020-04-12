@@ -107,7 +107,10 @@ export function runSimulation(
   for (const sample of samples) {
     const { hasCovid, id } = sample
     const currentSamplePoolIds = samplePools[id]
-    if (!currentSamplePoolIds || currentSamplePoolIds.length === 0) continue
+    if (!currentSamplePoolIds || currentSamplePoolIds.length === 0) {
+      console.error(`${sample.id} has no pools!`)
+      continue
+    }
     minPoolsPerSample = Math.min(currentSamplePoolIds.length, minPoolsPerSample)
     maxPoolsPerSample = Math.max(currentSamplePoolIds.length, maxPoolsPerSample)
     // a sample is considered positive if the positive/all ratio is higher than an
@@ -121,6 +124,7 @@ export function runSimulation(
     const positivePoolRatio = positivePools.length / currentSamplePoolIds.length
     const consideredPositive = positivePoolRatio >= threshold
     if (consideredPositive === hasCovid) continue
+    console.log(sample.id, hasCovid, positivePools.length, currentSamplePoolIds.length)
     if (consideredPositive) falsePositives++
     if (!consideredPositive) falseNegatives++ // yeah i like simmetry, sue me
   }
