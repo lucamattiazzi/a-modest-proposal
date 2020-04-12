@@ -10,7 +10,7 @@ import {
   THRESHOLD,
 } from './constants'
 import { renderRatio, saveStateInQuery, loadStateFromQuery } from './utils'
-import { Range } from './Range'
+import { Range, Column } from './Components'
 
 export function App() {
   const baseState = loadStateFromQuery()
@@ -90,8 +90,8 @@ export function App() {
 
   return (
     <div className="w-100 h-100 flex items-center justify-around">
-      <div className="w-50 h-100 flex items-center flex-column justify-center overflow-y-auto f6">
-        <div className="pv2 w-80 tc f3">SET VARIABLES</div>
+      <Column title="VARIABLES" buttonText="RESET VALUES" buttonFn={resetValues}>
+        <div className="pv2 w-80 tc f4">Non arbitrary</div>
         <div className="pv1 w-80">
           <div className="w-100 tc pv1">
             Diffusion of COVID among tested ({renderRatio(diffusion)})
@@ -105,14 +105,6 @@ export function App() {
             variable={samplesNumber}
             setVariable={safeSetSamplesNumber}
           />
-        </div>
-        <div className="pv1 w-80">
-          <div className="w-100 tc pv1">Number of pools to create ({poolNumber})</div>
-          <Range constants={POOL_NUMBER} variable={poolNumber} setVariable={safeSetPoolNumber} />
-        </div>
-        <div className="pv1 w-80">
-          <div className="w-100 tc pv1">Number of people in each pool ({poolSize})</div>
-          <Range constants={POOL_SIZE} variable={poolSize} setVariable={setPoolSize} />
         </div>
         <div className="pv1 w-80">
           <div className="w-100 tc pv1">
@@ -134,48 +126,47 @@ export function App() {
             setVariable={setFalseNegativeRatio}
           />
         </div>
+        <div className="pv2 w-80 tc f4">Arbitrary</div>
+        <div className="pv1 w-80">
+          <div className="w-100 tc pv1">Number of pools to create ({poolNumber})</div>
+          <Range constants={POOL_NUMBER} variable={poolNumber} setVariable={safeSetPoolNumber} />
+        </div>
+        <div className="pv1 w-80">
+          <div className="w-100 tc pv1">Number of people in each pool ({poolSize})</div>
+          <Range constants={POOL_SIZE} variable={poolSize} setVariable={setPoolSize} />
+        </div>
+
         <div className="pv1 w-80">
           <div className="w-100 tc pv1">
             Positive ratio for considering a person positive ({renderRatio(threshold)})
           </div>
           <Range constants={THRESHOLD} variable={threshold} setVariable={setThreshold} />
         </div>
-        <div className="pv2 w-80 tc">
-          <button onClick={resetValues} className="pa3">
-            RESET VALUES
-          </button>
+      </Column>
+      <Column title="RESULTS" buttonText="RUN SIMULATION" buttonFn={startSimulation}>
+        <div className="pv2 w-80 tc f4">Precomputed</div>
+        <div className="w-100 tc">
+          Compression ratio: {renderRatio(1 - poolNumber / samplesNumber)}
         </div>
-      </div>
-      <div className="w-50 h-100 flex items-center flex-column justify-center">
-        <div className="pv2 w-80 f4">
-          <div className="w-100 tc">
-            Compression ratio: {renderRatio(1 - poolNumber / samplesNumber)}
-          </div>
-          <div className="w-100 tc pb3">
-            Avg pools per sample: {((poolNumber * poolSize) / samplesNumber).toFixed(2)}
-          </div>
-
-          <div className="w-100 tc">
-            Total false positives: {falsePositives}/{samplesNumber}
-          </div>
-          <div className="w-100 tc pb2">
-            Total false positive ratio: {renderRatio(falsePositives / samplesNumber)}
-          </div>
-          <div className="w-100 tc">
-            Total false negatives: {falseNegatives}/{samplesNumber}
-          </div>
-          <div className="w-100 tc pb2">
-            Total false negative ratio: {renderRatio(falseNegatives / samplesNumber)}
-          </div>
-          <div className="w-100 tc">Min pools per sample: {minPoolsPerSample}</div>
-          <div className="w-100 tc">Max pools per sample: {maxPoolsPerSample}</div>
-          <div className="pt5 w-100 tc">
-            <button onClick={startSimulation} className="pa3">
-              RUN SIMULATION
-            </button>
-          </div>
+        <div className="w-100 tc pb3">
+          Avg pools per sample: {((poolNumber * poolSize) / samplesNumber).toFixed(2)}
         </div>
-      </div>
+        <div className="pv2 w-80 tc f4">Simulated</div>
+        <div className="w-100 tc">
+          Total false positives: {falsePositives}/{samplesNumber}
+        </div>
+        <div className="w-100 tc pb2">
+          Total false positive ratio: {renderRatio(falsePositives / samplesNumber)}
+        </div>
+        <div className="w-100 tc">
+          Total false negatives: {falseNegatives}/{samplesNumber}
+        </div>
+        <div className="w-100 tc pb2">
+          Total false negative ratio: {renderRatio(falseNegatives / samplesNumber)}
+        </div>
+        <div className="w-100 tc">Min pools per sample: {minPoolsPerSample}</div>
+        <div className="w-100 tc">Max pools per sample: {maxPoolsPerSample}</div>
+      </Column>
     </div>
   )
 }

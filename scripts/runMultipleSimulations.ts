@@ -1,5 +1,6 @@
 const { intersection, shuffle, range } = require('lodash')
 const cartProduct = require('cartesian-product')
+const fs = require('fs')
 
 interface Constant {
   min: number
@@ -9,7 +10,8 @@ interface Constant {
 const { random } = Math
 
 const MAX_TRIALS = 5
-const VALUES_FOR_CONSTANT = 10
+const VALUES_FOR_CONSTANT = 6
+const RESULTS_FILE = `./results${VALUES_FOR_CONSTANT}.csv`
 const SAMPLES_NUMBER = 1000
 
 const DIFFUSION_RANGE = [0, 1]
@@ -155,7 +157,23 @@ function runSimulation(
   return [falsePositives, falseNegatives, minPoolsPerSample, maxPoolsPerSample]
 }
 
-for (const inputs of allInputs) {
+const keys = [
+  'diffusion',
+  'poolSize',
+  'compression',
+  'falsePositiveRatio',
+  'falseNegativeRatio',
+  'threshold',
+  'falsePositives',
+  'falseNegatives',
+  'minPoolsPerSample',
+  'maxPoolsPerSample',
+]
+
+fs.writeFileSync(RESULTS_FILE, `${keys.join(',')}\n`)
+
+for (const idx in allInputs) {
+  const inputs = allInputs[idx]
   const [
     diffusion,
     poolSize,
@@ -165,7 +183,7 @@ for (const inputs of allInputs) {
     threshold,
   ] = inputs
   const poolsNumber = Math.round(SAMPLES_NUMBER * compression)
-  const results = runSimulation(
+  const [falsePositives, falseNegatives, minPoolsPerSample, maxPoolsPerSample] = runSimulation(
     SAMPLES_NUMBER,
     diffusion,
     poolSize,
@@ -174,6 +192,18 @@ for (const inputs of allInputs) {
     falseNegativeRatio,
     threshold
   )
-  console.log('results', results)
-  break
+  const datum = [
+    diffusion,
+    poolSize,
+    compression,
+    falsePositiveRatio,
+    falseNegativeRatio,
+    threshold,
+    falsePositives,
+    falseNegatives,
+    minPoolsPerSample,
+    maxPoolsPerSample,
+  ]
+  fs.appendFileSync(RESULTS_FILE, `${datum.join(',')}\n`)
+  console.log(`${((100 * parseInt(idx)) / allInputs.length).toFixed(2)}%`)
 }

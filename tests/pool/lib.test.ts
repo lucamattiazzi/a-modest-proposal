@@ -128,4 +128,12 @@ describe(generatePools, () => {
     expect(polls.length).toBe(50)
     expect(negativePolls.length).toBe(polls.length)
   })
+
+  it('Should generate at least one positive pool if there is at least one positive sample', () => {
+    const allSamples = [...negatives, positiveSample]
+    const [polls] = generatePools(allSamples, 10, 50)
+    const positivePolls = polls.filter(p => p.hasCovid)
+    expect(polls.length).toBe(50)
+    expect(positivePolls.length).toBeGreaterThanOrEqual(1)
+  })
 })
